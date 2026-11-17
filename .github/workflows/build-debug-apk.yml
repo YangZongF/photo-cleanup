@@ -1,0 +1,73 @@
+# Build a debug APK on every push to dev, so every testable version
+# produces a downloadable APK even though no machine with a Flutter
+# SDK is available locally. No signing secrets needed: debug build
+# for testing only. Release / Play Store signing is a separate step.
+# APK rule (2026-11-17, user): do NOT package frequently. Package only
+# when content, features and visuals are stable, or on the user's
+# explicit command. This workflow running on a push does not mean a
+# test version is released -- the APK is only handed over when the
+# user asks for it.
+name: Build debug APK
+
+on:
+  push:
+    branches: [dev]
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # The repo has no android/ folder yet. Generate only the Android
+      # platform folder in CI; once android/ is committed this step is
+      # a no-op. `flutter create` can overwrite existing project files
+      # (pubspec.yaml, lib/main.dart, README.md), so back them up first
+      # and restore them right after. Nothing in this step touches the
+      # repo itself -- the generated folder lives only in the runner.
+      - name: Generate Android folder if missing
+        run: |
+          if [ ! -d android ]; then
+            mkdir -p /tmp/project-backup
+            for f in pubspec.yaml l10n.yaml analysis_options.yaml README.md; do
+              [ -f "$f" ] && cp "$f" /tmp/project-backup/
+            done
+            cp -r lib /tmp/project-backup/lib
+            flutter create --project-name photo_cleanup --platforms android .
+            for f in pubspec.yaml l10n.yaml analysis_options.yaml README.md; do
+              [ -f "/tmp/project-backup/$f" ] && cp "/tmp/project-backup/$f" .
+            done
+            rm -rf lib && cp -r /tmp/project-backup/lib lib
+          fi
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: photo-cleanup-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 30
