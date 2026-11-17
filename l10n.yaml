@@ -1,0 +1,14 @@
+# Generated localizations: `flutter gen-l10n` reads lib/l10n/*.arb
+# and generates lib/l10n/app_localizations.dart.
+# NOTE (Flutter >= 3.32): the synthetic `package:flutter_gen` package no
+# longer exists. Generated code now goes into the project directory, so
+# every Dart file imports `package:photo_cleanup/l10n/app_localizations.dart`.
+# Do NOT add `synthetic-package: true` back.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-dir: lib/l10n
+# ONLY locales that have an ARB file may be listed here.
+preferred-supported-locales:
+  - en
+  - zh

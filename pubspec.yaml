@@ -1,0 +1,43 @@
+name: photo_cleanup
+description: "Fully offline duplicate and similar photo cleaner. No account, no server, no ads, no analytics. One-time purchase, no subscription."
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  # Local persistence only. No network, ads, analytics or server deps.
+  shared_preferences: ^2.3.0
+  # Photo library access (read only) + thumbnails.
+  photo_manager: ^3.0.0
+  # On-device image decoding for the perceptual hash (thumbnails only).
+  image: ^4.0.0
+  # Exact-duplicate fingerprint.
+  crypto: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/icons/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon_1024.png"
+  adaptive_icon_background: "#0E7C6B"
+  min_sdk_android: 21
+  remove_alpha_ios: true
